@@ -1,0 +1,51 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial loraSerial(10, 11); // RX, TX
+
+const int trigPin = 6;
+const int echoPin = 7;
+
+long duration;
+float distance;
+
+void setup() {
+  Serial.begin(9600);       // PC Serial Monitor
+  loraSerial.begin(9600);   // LoRa module
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  Serial.println("LoRa Ultrasonic Sender Ready...");
+}
+
+void loop() {
+
+  // Trigger ultrasonic pulse
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read echo
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate distance in cm
+  distance = duration * 0.034 / 2;
+
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // Send through LoRa if distance < 10 cm
+  if (distance < 10) {
+    loraSerial.print("Distance: ");
+    loraSerial.print(distance);
+    loraSerial.println(" cm");
+
+    Serial.println("Sent through LoRa");
+  }
+
+  delay(500);
+}
