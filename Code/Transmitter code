@@ -1,0 +1,36 @@
+#include <SoftwareSerial.h>
+
+// Define pins for Software Serial (if not using hardware Serial1/Serial2)
+SoftwareSerial loraSerial(10, 11); // RX, TX
+//const int auxPin = 2;
+
+void setup() {
+  Serial.begin(9600);       // Communication with PC
+  loraSerial.begin(9600);   // Communication with E32 (Default is 9600)
+  
+  //pinMode(auxPin, INPUT);
+  
+  Serial.println("E32 Two-Way Tester Ready...");
+}
+
+void loop() {
+  // 1. Send data from PC to LoRa
+  if (Serial.available()) {
+    String input = Serial.readString();
+    
+    // Wait for AUX to be HIGH (module is idle)
+   // while(digitalRead(auxPin) == LOW); 
+    
+    loraSerial.print(input);
+    Serial.println("Sent: " + input);
+  }
+
+  // 2. Receive data from LoRa to PC
+  if (loraSerial.available()) {
+    // Wait for AUX to be HIGH (ensures packet is fully received)
+   // while(digitalRead(auxPin) == LOW); 
+    //Serial.println(digitalRead(auxPin));
+    String output = loraSerial.readString();
+    Serial.println("Received: " + output);
+  }
+}
